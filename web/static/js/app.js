@@ -37,7 +37,22 @@
       case "join_rejected": notice("Join rejected: " + (msg.reason || "")); mode = "observer"; updateControls(); break;
       case "join_cancelled": mode = "observer"; notice("Join cancelled."); updateControls(); break;
       case "left": mode = "observer"; notice("You left the table."); updateControls(); break;
+      case "session_complete": showStandings(msg.standings); break;
     }
+  }
+
+  function showStandings(standings) {
+    const body = $("standings-body");
+    body.innerHTML = "";
+    (standings || []).forEach((s, i) => {
+      const row = document.createElement("div");
+      row.className = "standings-row";
+      row.innerHTML =
+        `<span class='rank'>#${i + 1} ${escapeHtml(s.name)}</span>` +
+        `<span>${s.stack} chips · ${s.hands_won} hands won</span>`;
+      body.appendChild(row);
+    });
+    $("standings-modal").classList.remove("hidden");
   }
 
   // ---------------- Rendering ----------------
@@ -67,7 +82,9 @@
 
   function render() {
     if (!state) return;
-    mode = state.view === "player" ? (mode === "queued" ? "player" : "player") : (mode === "queued" ? "queued" : "observer");
+    // The server's view is authoritative: a "player" view means we're seated.
+    if (state.view === "player") mode = "player";
+    else if (mode !== "queued") mode = "observer";
     $("view-mode").textContent = state.view;
     $("hand-info").textContent = state.hand_in_progress
       ? `Hand #${state.hand_number} · ${state.stage}`

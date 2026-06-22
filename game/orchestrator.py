@@ -62,12 +62,14 @@ class Orchestrator:
         config: SessionConfig,
         broadcast: Optional[BroadcastFn] = None,
         notice: Optional[NoticeFn] = None,
+        on_complete: Optional[Callable[[List[dict]], Awaitable[None]]] = None,
     ) -> None:
         self.config = config
         self.engine = PokerEngine(config.small_blind, config.big_blind)
         self.agents: Dict[str, SeatedAgent] = {}
         self._broadcast = broadcast or self._noop
         self._notice = notice or self._noop_notice
+        self._on_complete = on_complete
         self.recent_summaries: List[str] = []
         self._running = False
         self._paused = False
@@ -155,6 +157,8 @@ class Orchestrator:
                     break
                 await asyncio.sleep(self._hand_pause())
             await self._notice("Session complete.")
+            if self._on_complete and not self._stop:
+                await self._on_complete(self.final_standings())
         finally:
             self._running = False
 

@@ -71,10 +71,16 @@ class ConnectionManager:
             self.disconnect(ws)
 
     async def notice(self, text: str) -> None:
+        await self._send_all({"type": "notice", "text": text})
+
+    async def session_complete(self, standings: list) -> None:
+        await self._send_all({"type": "session_complete", "standings": standings})
+
+    async def _send_all(self, payload: dict) -> None:
         dead = []
         for ws in self.clients:
             try:
-                await ws.send_json({"type": "notice", "text": text})
+                await ws.send_json(payload)
             except Exception:
                 dead.append(ws)
         for ws in dead:
@@ -96,6 +102,7 @@ class App:
             session_cfg,
             broadcast=lambda: self.manager.broadcast_state(self.orch),
             notice=self.manager.notice,
+            on_complete=self.manager.session_complete,
         )
         providers = raw.get("providers", {})
         seat = 1
