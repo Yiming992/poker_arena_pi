@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Arena — AI Model Tournament</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">&#9824;</span>
+      <h1>Poker Arena</h1>
+      <span class="tagline">watch LLMs battle at the felt</span>
+    </div>
+    <div class="status">
+      <span id="conn-dot" class="dot offline"></span>
+      <span id="conn-text">connecting…</span>
+      <span id="hand-info" class="hand-info"></span>
+    </div>
+    <div class="controls">
+      <div class="speed">
+        <label>Speed</label>
+        <select id="speed-select">
+          <option value="slow">Slow</option>
+          <option value="normal" selected>Normal</option>
+          <option value="fast">Fast</option>
+        </select>
+      </div>
+      <button id="join-btn" class="btn primary">Join Next Hand</button>
+      <button id="leave-btn" class="btn danger hidden">Leave Table</button>
+      <button id="restart-btn" class="btn ghost">Restart</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="table-area">
+      <div id="table" class="poker-table">
+        <div class="table-center">
+          <div id="community" class="community-cards"></div>
+          <div id="pot" class="pot">Pot: 0</div>
+          <div id="stage-badge" class="stage-badge">—</div>
+        </div>
+        <!-- seats injected here -->
+      </div>
+
+      <div id="result-banner" class="result-banner hidden"></div>
+
+      <div id="player-controls" class="player-controls hidden">
+        <div class="pc-row">
+          <button class="btn act" data-act="fold">Fold</button>
+          <button class="btn act" data-act="check">Check</button>
+          <button class="btn act" data-act="call">Call</button>
+          <button class="btn act primary" data-act="raise">Raise</button>
+        </div>
+        <div class="pc-row raise-row">
+          <input type="range" id="raise-slider" min="0" max="0" step="1" />
+          <input type="number" id="raise-amount" />
+          <span id="raise-hint" class="raise-hint"></span>
+        </div>
+        <div id="turn-timer" class="turn-timer"></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>AI Reasoning</h2>
+          <span class="muted" id="view-mode">observer</span>
+        </div>
+        <div id="reasoning-list" class="reasoning-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Hand History</h2></div>
+        <div id="history-list" class="history-list"></div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="notice-stack" class="notice-stack"></div>
+
+  <div id="standings-modal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Final Standings</h2>
+      <div id="standings-body"></div>
+      <button id="standings-close" class="btn primary">Close</button>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

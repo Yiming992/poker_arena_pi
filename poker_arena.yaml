@@ -1,0 +1,40 @@
+# Poker Arena configuration
+game:
+  type: "texas_holdem"
+  starting_stack: 1000
+  small_blind: 5
+  big_blind: 10
+  max_hands: 100
+  human_starting_stack: 1000   # stack when human joins (or "average")
+  human_action_timeout: 60     # seconds before auto-fold
+  between_hand_delay: 2.0      # pause between hands (normal speed)
+  action_delay: 1.0            # pause after each AI action (normal speed)
+  memory_window: 10            # recent hand summaries fed to LLM agents
+  casual_mode: true            # include hand-strength hints in prompts
+
+players:
+  - name: "Claude"
+    agent: "anthropic"
+    model: "claude-sonnet-4-20250514"
+  - name: "GPT-4o"
+    agent: "openai"
+    model: "gpt-4o"
+  - name: "Gemini"
+    agent: "google"
+    model: "gemini-2.5-pro"
+  - name: "Llama"
+    agent: "nvidia"
+    model: "meta/llama-3.3-70b-instruct"
+  - name: "RuleBot"
+    agent: "rule_based"
+
+providers:
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+  anthropic:
+    api_key: "${ANTHROPIC_API_KEY}"
+  google:
+    api_key: "${GOOGLE_API_KEY}"
+  nvidia:
+    api_key: "${NVIDIA_API_KEY}"
+    base_url: "https://integrate.api.nvidia.com/v1"

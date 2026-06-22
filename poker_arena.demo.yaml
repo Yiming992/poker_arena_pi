@@ -1,0 +1,26 @@
+# Poker Arena — zero-key demo config (all deterministic rule-based bots).
+# Run: python server.py --config poker_arena.demo.yaml
+game:
+  type: "texas_holdem"
+  starting_stack: 1000
+  small_blind: 5
+  big_blind: 10
+  max_hands: 100
+  human_starting_stack: "average"
+  human_action_timeout: 60
+  between_hand_delay: 2.0
+  action_delay: 1.2
+  memory_window: 10
+  casual_mode: true
+
+players:
+  - name: "Rocky"
+    agent: "rule_based"
+  - name: "Ace"
+    agent: "rule_based"
+  - name: "Maverick"
+    agent: "rule_based"
+  - name: "Sage"
+    agent: "rule_based"
+
+providers: {}
