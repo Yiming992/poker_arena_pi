@@ -1,0 +1,49 @@
+# Poker Arena — all models through ONE NVIDIA inference API key.
+#
+# A single key on inference-api.nvidia.com reaches many models via two schemas:
+#   api: chat      -> /v1/chat/completions    (OpenAI-compatible)
+#   api: messages  -> /v1/messages            (Anthropic-compatible)
+#
+# Run:  python server.py --config poker_arena.nvidia.yaml
+# Needs: export NVIDIA_API_KEY=nvapi-...   (or set it below directly)
+game:
+  type: "texas_holdem"
+  starting_stack: 1000
+  small_blind: 5
+  big_blind: 10
+  max_hands: 100
+  human_starting_stack: "average"
+  human_action_timeout: 60
+  between_hand_delay: 2.0
+  action_delay: 1.2
+  memory_window: 10
+  casual_mode: true
+
+# NOTE: model IDs depend on what your key is entitled to. List them with:
+#   curl https://inference-api.nvidia.com/v1/models -H "Authorization: Bearer $NVIDIA_API_KEY"
+# Some keys require an "nvcf/" prefix (e.g. nvcf/meta/llama-3.3-70b-instruct).
+players:
+  - name: "GPT-5.5"
+    agent: "nvidia"
+    model: "openai/openai/gpt-5.5"
+    api: "chat"
+  - name: "Opus-4.8"
+    agent: "nvidia"
+    model: "aws/anthropic/bedrock-claude-opus-4-8"
+    api: "messages"
+  - name: "Llama-3.3"
+    agent: "nvidia"
+    model: "nvcf/meta/llama-3.3-70b-instruct"
+    api: "chat"
+  - name: "GPT-OSS-120B"
+    agent: "nvidia"
+    model: "nvcf/openai/gpt-oss-120b"
+    api: "chat"
+  - name: "RuleBot"
+    agent: "rule_based"
+
+providers:
+  nvidia:
+    # Accepts either NVIDIA_API_KEY or NVIDIA_INFERENCE_API_KEY from the env.
+    api_key: "${NVIDIA_API_KEY}"
+    base_url: "https://inference-api.nvidia.com/v1"

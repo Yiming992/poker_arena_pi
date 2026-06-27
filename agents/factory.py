@@ -12,6 +12,7 @@ def build_agent(
     agent_type: str,
     model: Optional[str] = None,
     providers: Optional[dict] = None,
+    api: Optional[str] = None,
 ) -> PokerAgent:
     providers = providers or {}
 
@@ -55,6 +56,7 @@ def build_agent(
             model=model or "meta/llama-3.3-70b-instruct",
             api_key=cfg.get("api_key"),
             base_url=cfg.get("base_url"),
+            api=api or "chat",
         )
 
     raise ValueError(f"Unknown agent type: {agent_type!r}")

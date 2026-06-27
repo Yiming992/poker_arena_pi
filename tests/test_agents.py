@@ -150,6 +150,46 @@ def test_rule_based_raises_premium():
     assert action.type in (ActionType.RAISE, ActionType.ALL_IN)
 
 
+def test_nvidia_agent_routing_chat_vs_messages():
+    from agents.factory import build_agent
+    from agents.nvidia_agent import _NvidiaChatAgent, _NvidiaMessagesAgent
+
+    providers = {
+        "nvidia": {
+            "api_key": "nvapi-test",
+            "base_url": "https://inference-api.nvidia.com/v1",
+        }
+    }
+    chat = build_agent(
+        "GPT", "nvidia", model="openai/openai/gpt-5.5", providers=providers, api="chat"
+    )
+    msgs = build_agent(
+        "Opus",
+        "nvidia",
+        model="aws/anthropic/bedrock-claude-opus-4-8",
+        providers=providers,
+        api="messages",
+    )
+    assert isinstance(chat, _NvidiaChatAgent)
+    assert isinstance(msgs, _NvidiaMessagesAgent)
+    assert chat.agent_type == msgs.agent_type == "nvidia"
+    # Messages agent must strip the trailing /v1 (SDK re-appends /v1/messages).
+    assert str(msgs._client.base_url).rstrip("/").endswith("inference-api.nvidia.com")
+    # Chat agent keeps the /v1 base.
+    assert "/v1" in str(chat._client.base_url)
+
+
+def test_nvidia_default_api_is_chat():
+    from agents.factory import build_agent
+    from agents.nvidia_agent import _NvidiaChatAgent
+
+    agent = build_agent(
+        "Llama", "nvidia", model="meta/llama-3.3-70b-instruct",
+        providers={"nvidia": {"api_key": "nvapi-test"}},
+    )
+    assert isinstance(agent, _NvidiaChatAgent)
+
+
 def test_rule_based_action_always_legal():
     agent = RuleBasedAgent("RuleBot")
     for hole in [("Ah", "As"), ("Kh", "Qh"), ("9c", "9d"), ("2h", "7d")]:

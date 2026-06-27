@@ -28,13 +28,29 @@ class OpenAIAgent(LLMAgent):
         self._client = AsyncOpenAI(**kwargs)
 
     async def _call_model(self, system: str, user: str) -> str:
-        resp = await self._client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            temperature=0.8,
-            max_tokens=600,
-        )
+        messages = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+        # Some newer models (e.g. gpt-5.x reasoning models) reject non-default
+        # temperature and use max_completion_tokens instead of max_tokens. Try
+        # the rich call first, then fall back to a minimal one on a 400 that
+        # mentions those params.
+        try:
+            resp = await self._client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.8,
+                max_tokens=600,
+            )
+        except Exception as exc:  # noqa: BLE001
+            msg = str(exc).lower()
+            if "temperature" in msg or "max_tokens" in msg or "max_completion" in msg:
+                resp = await self._client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    max_completion_tokens=800,
+                )
+            else:
+                raise
         return resp.choices[0].message.content or ""

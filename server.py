@@ -112,6 +112,7 @@ class App:
                 agent_type=p["agent"],
                 model=p.get("model"),
                 providers=providers,
+                api=p.get("api"),
             )
             orch.add_agent(agent, seat=seat, stack=session_cfg.starting_stack)
             seat += 1

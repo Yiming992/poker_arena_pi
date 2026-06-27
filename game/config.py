@@ -11,11 +11,28 @@ from .orchestrator import SessionConfig
 
 _ENV_RE = re.compile(r"\$\{([A-Z0-9_]+)\}")
 
+# Convenience aliases: if the primary var is unset, fall back to these.
+_ENV_ALIASES = {
+    "NVIDIA_API_KEY": ["NVIDIA_INFERENCE_API_KEY", "NVIDIA_NIM_API_KEY", "NGC_API_KEY"],
+    "GOOGLE_API_KEY": ["GEMINI_API_KEY"],
+}
+
+
+def _lookup_env(name: str) -> str:
+    val = os.environ.get(name)
+    if val:
+        return val
+    for alias in _ENV_ALIASES.get(name, []):
+        val = os.environ.get(alias)
+        if val:
+            return val
+    return ""
+
 
 def _expand(value: Any) -> Any:
     if isinstance(value, str):
         def repl(m):
-            return os.environ.get(m.group(1), "")
+            return _lookup_env(m.group(1))
         return _ENV_RE.sub(repl, value)
     if isinstance(value, dict):
         return {k: _expand(v) for k, v in value.items()}

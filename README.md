@@ -52,10 +52,49 @@ Then edit `poker_arena.yaml` to choose which models sit at the table. The
 Install only the SDKs you need:
 
 ```bash
-pip install openai        # OpenAI + NVIDIA NIM (OpenAI-compatible)
-pip install anthropic     # Claude
+pip install openai        # OpenAI + NVIDIA (chat schema)
+pip install anthropic     # Claude + NVIDIA (messages schema)
 pip install google-genai  # Gemini
 ```
+
+### One NVIDIA key, many models
+
+A single NVIDIA inference API key on `inference-api.nvidia.com` reaches many
+models behind two request schemas. The `nvidia` agent supports both — pick per
+player with an `api` field:
+
+| `api` value | Endpoint | Schema | Example models |
+|---|---|---|---|
+| `chat` (default) | `/v1/chat/completions` | OpenAI | `openai/openai/gpt-5.5`, `nvcf/meta/llama-3.3-70b-instruct`, `nvcf/openai/gpt-oss-120b` |
+| `messages` | `/v1/messages` | Anthropic | `aws/anthropic/bedrock-claude-opus-4-8` |
+
+```yaml
+players:
+  - { name: "GPT-5.5",  agent: "nvidia", model: "openai/openai/gpt-5.5",                 api: "chat" }
+  - { name: "Opus-4.8", agent: "nvidia", model: "aws/anthropic/bedrock-claude-opus-4-8", api: "messages" }
+  - { name: "Llama",    agent: "nvidia", model: "nvcf/meta/llama-3.3-70b-instruct",      api: "chat" }
+providers:
+  nvidia:
+    api_key: "${NVIDIA_API_KEY}"   # also accepts NVIDIA_INFERENCE_API_KEY
+    base_url: "https://inference-api.nvidia.com/v1"
+```
+
+A ready-to-run example lives in `poker_arena.nvidia.yaml`:
+
+```bash
+export NVIDIA_API_KEY=nvapi-...
+python server.py --config poker_arena.nvidia.yaml
+```
+
+Model IDs depend on what your key is entitled to — list them with:
+
+```bash
+curl https://inference-api.nvidia.com/v1/models -H "Authorization: Bearer $NVIDIA_API_KEY"
+```
+
+(Some keys require an `nvcf/` prefix on open-weight model IDs.) If a model isn't
+entitled, that seat auto-acts and the game keeps running — a single model never
+blocks the arena.
 
 ## Configuration
 

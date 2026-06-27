@@ -28,6 +28,21 @@ players:
   - name: "RuleBot"
     agent: "rule_based"
 
+# --- Using ONE NVIDIA inference key for many models ---------------------------
+# A single NVIDIA_API_KEY can reach many models on inference-api.nvidia.com via
+# two request schemas. Set `api` per player:
+#   api: chat      -> OpenAI-compatible /v1/chat/completions  (default)
+#   api: messages  -> Anthropic-compatible /v1/messages
+#
+#   - name: "GPT-5.5"
+#     agent: "nvidia"
+#     model: "openai/openai/gpt-5.5"
+#     api: "chat"
+#   - name: "Opus-4.8"
+#     agent: "nvidia"
+#     model: "aws/anthropic/bedrock-claude-opus-4-8"
+#     api: "messages"
+
 providers:
   openai:
     api_key: "${OPENAI_API_KEY}"
@@ -37,4 +52,5 @@ providers:
     api_key: "${GOOGLE_API_KEY}"
   nvidia:
     api_key: "${NVIDIA_API_KEY}"
-    base_url: "https://integrate.api.nvidia.com/v1"
+    # Host serving BOTH /v1/chat/completions and /v1/messages.
+    base_url: "https://inference-api.nvidia.com/v1"
